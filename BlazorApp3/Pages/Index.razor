@@ -1,0 +1,94 @@
+﻿@page "/"
+@using Newtonsoft.Json;
+
+<PageTitle>Practise</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-4"></div>
+        <div class="col-4">
+           <div class="head-text">Chatbot</div>
+
+            
+               
+                <div class="messages">
+                 
+                    @for(int i=0; i<messages.Count; i++){
+                        @if(i % 2==0){
+                            <div class="question">@messages[i]</div>
+                        }
+                        else
+                        {
+                            <div class="response">@messages[i]</div>
+                        }
+
+                        
+                    }
+                </div>
+                
+            
+            <div class="actionfield">
+              <input @bind="message" />
+                
+                <button @onclick="sendmessage">send</button>
+             <div class="clear">
+                    <button @onclick="clearMessage">Clear</button>
+             </div>
+                    
+               
+               
+            </div>
+        </div>
+      
+       
+        
+        <div class="col-4"></div>
+    </div>
+
+
+
+</div>
+
+@code{
+    List<string> messages = new List<string>();
+    private static HttpClient Http = new HttpClient();
+    public string message;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    public async Task sendmessage()
+    {
+        Http = new HttpClient();
+        messages.Add(message);
+
+        var apiKey = " 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";
+        Http.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+        var jsonContent = new
+        {
+            prompt = message,
+            model = "gpt-3.5-turbo-instruct",
+            max_tokens = 1000,
+            temperature = 1
+        };
+        var responseContent = await Http.PostAsync(" https://api.openai.com/v1/completions", new StringContent(JsonConvert.SerializeObject(jsonContent), System.Text.Encoding.UTF8, "application/json"));
+
+        var res = await responseContent.Content.ReadAsStringAsync();
+
+        var data = JsonConvert.DeserializeObject<dynamic>(res);
+        messages.Add(data.choices[0].text.ToString());
+
+        StateHasChanged();
+
+
+    }
+    public void clearMessage()
+    {
+        messages.Clear();
+    }
+
+}
+
