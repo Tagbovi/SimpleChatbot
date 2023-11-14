@@ -1,6 +1,7 @@
 # SimpleChatbot
 Chatbot in C# in Blazor
  chatbox using OpenALs ghatgpt 3.5 Api 
+install package **Newtonsoft.Json** and **Textcopy**
 
 
 
